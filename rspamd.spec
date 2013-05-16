@@ -2,7 +2,7 @@
 Summary:	Spam filter to replace spamassassin
 Name:		rspamd
 Version:	0.5.4
-Release:	0.1
+Release:	0.2
 License:	BSD-like
 Group:		Applications
 Source0:	https://bitbucket.org/vstakhov/rspamd/downloads/%{name}-%{version}.tar.gz
@@ -54,7 +54,7 @@ spam filters:
 %setup -q
 
 %build
-%{__cmake} -DCMAKE_INSTALL_PREFIX=%{_prefix} .
+%{__cmake} -DCMAKE_INSTALL_PREFIX=%{_prefix} -DETC_PREFIX=%{_sysconfdir} .
 %{__make}
 
 %install
@@ -125,27 +125,27 @@ fi
 %attr(755,root,root) %{_bindir}/rspamd
 %attr(755,root,root) %{_bindir}/rspamd-0.5.4
 #%attr(754,root,root) %{_prefix}/etc/rc.d/init.d/rspamd
-%{_prefix}%{_sysconfdir}/rspamd.xml.sample
-%{_prefix}%{_sysconfdir}/rspamd/2tld.inc
-%{_prefix}%{_sysconfdir}/rspamd/2tld.inc.orig
-%{_prefix}%{_sysconfdir}/rspamd/lua/regexp/drugs.lua
-%{_prefix}%{_sysconfdir}/rspamd/lua/regexp/fraud.lua
-%{_prefix}%{_sysconfdir}/rspamd/lua/regexp/headers.lua
-%{_prefix}%{_sysconfdir}/rspamd/lua/regexp/lotto.lua
-%{_prefix}%{_sysconfdir}/rspamd/lua/rspamd.classifiers.lua
-%{_prefix}%{_sysconfdir}/rspamd/lua/rspamd.lua
-%{_prefix}%{_sysconfdir}/rspamd/plugins/lua/emails.lua
-%{_prefix}%{_sysconfdir}/rspamd/plugins/lua/forged_recipients.lua
-%{_prefix}%{_sysconfdir}/rspamd/plugins/lua/ip_score.lua
-%{_prefix}%{_sysconfdir}/rspamd/plugins/lua/maillist.lua
-%{_prefix}%{_sysconfdir}/rspamd/plugins/lua/multimap.lua
-%{_prefix}%{_sysconfdir}/rspamd/plugins/lua/once_received.lua
-%{_prefix}%{_sysconfdir}/rspamd/plugins/lua/phishing.lua
-%{_prefix}%{_sysconfdir}/rspamd/plugins/lua/ratelimit.lua
-%{_prefix}%{_sysconfdir}/rspamd/plugins/lua/received_rbl.lua
-%{_prefix}%{_sysconfdir}/rspamd/plugins/lua/trie.lua
-%{_prefix}%{_sysconfdir}/rspamd/plugins/lua/whitelist.lua
-%{_prefix}%{_sysconfdir}/rspamd/surbl-whitelist.inc
+%{_sysconfdir}/rspamd.xml.sample
+%{_sysconfdir}/rspamd/2tld.inc
+%{_sysconfdir}/rspamd/2tld.inc.orig
+%{_sysconfdir}/rspamd/lua/regexp/drugs.lua
+%{_sysconfdir}/rspamd/lua/regexp/fraud.lua
+%{_sysconfdir}/rspamd/lua/regexp/headers.lua
+%{_sysconfdir}/rspamd/lua/regexp/lotto.lua
+%{_sysconfdir}/rspamd/lua/rspamd.classifiers.lua
+%{_sysconfdir}/rspamd/lua/rspamd.lua
+%{_sysconfdir}/rspamd/plugins/lua/emails.lua
+%{_sysconfdir}/rspamd/plugins/lua/forged_recipients.lua
+%{_sysconfdir}/rspamd/plugins/lua/ip_score.lua
+%{_sysconfdir}/rspamd/plugins/lua/maillist.lua
+%{_sysconfdir}/rspamd/plugins/lua/multimap.lua
+%{_sysconfdir}/rspamd/plugins/lua/once_received.lua
+%{_sysconfdir}/rspamd/plugins/lua/phishing.lua
+%{_sysconfdir}/rspamd/plugins/lua/ratelimit.lua
+%{_sysconfdir}/rspamd/plugins/lua/received_rbl.lua
+%{_sysconfdir}/rspamd/plugins/lua/trie.lua
+%{_sysconfdir}/rspamd/plugins/lua/whitelist.lua
+%{_sysconfdir}/rspamd/surbl-whitelist.inc
 # %{_includedir}/rspamd/librspamdclient.h
 %attr(755,root,root) %{_prefix}/lib/rspamd/librspamd-cdb.so
 %attr(755,root,root) %{_prefix}/lib/rspamd/librspamd-cdb.so.0.5.4
