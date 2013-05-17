@@ -1,0 +1,94 @@
+#!/bin/sh
+#
+# rspamd This script starts and stops the rspamd daemon
+#
+# chkconfig: 2345 80 30
+#
+# description: rspamd is a daemon process which uses rspamd to check \
+#              email messages for SPAM.  It is normally called by rspamc \
+#              from a MDA.
+# processname: rspamd
+# pidfile:     /var/run/rspamd.pid
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+SPAMD_OPTS="-d -c"
+# Source configureation.
+if [ -f /etc/sysconfig/rspamd ] ; then
+	. /etc/sysconfig/rspamd
+fi
+
+# Check that networking is up.
+if is_no "${NETWORKING}"; then
+	msg_network_down "rspamd"
+	exit 1
+fi
+
+start() {
+	# Start daemon.
+	if [ -f /var/lock/subsys/rspamd ]; then
+		msg_already_running "rspamd"
+		return
+	fi
+
+	msg_starting "rspamd"
+	daemon /usr/bin/rspamd -u rspamd -g rspamd $RSPAMD_OPTS
+	RETVAL=$?
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/rspamd
+}
+
+stop() {
+	# Stop daemons.
+	if [ ! -f /var/lock/subsys/rspamd ]; then
+		msg_not_running "rspamd"
+		return
+	fi
+
+	msg_stopping "rspamd"
+	killproc rspamd
+	RETVAL=$?
+	rm -f /var/lock/subsys/rspamd
+}
+
+condrestart() {
+	if [ ! -f /var/lock/subsys/rspamd ]; then
+		msg_not_running "rspamd"
+		RETVAL=$1
+		return
+	fi
+
+	stop
+	start
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart)
+	stop
+	start
+	;;
+  try-restart)
+	condrestart 0
+	;;
+  force-reload)
+	condrestart 7
+	;;
+  status)
+	status rspamd
+	;;
+  *)
+	msg_usage "$0 {start|stop|restart|try-restart|force-reload|status}"
+	exit 1
+esac
+
+exit $RETVAL

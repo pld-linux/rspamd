@@ -1,0 +1,4 @@
+# Customized settings for rspamd
+
+# Cmdline options 
+RSPAMD_OPTS=""
