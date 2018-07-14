@@ -31,9 +31,6 @@ Provides:	group(rspamd)
 Provides:	user(rspamd)
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-# Executable provides rspamd_main, gmime and more
-%define skip_post_check_so librspamd-mime.so.* librspamd-server.so.* librspamd-lua.so.*
-
 %description
 Rspamd is a complex spam filter that allows to estimate messages by
 many rules, statistical data and custom services like URL black lists.
@@ -54,23 +51,26 @@ spam filters:
 %setup -q
 
 %build
-%{__cmake} -DCMAKE_INSTALL_PREFIX=%{_prefix} \
+install -d build
+cd build
+%{__cmake} \
+	-DCMAKE_INSTALL_PREFIX=%{_prefix} \
 	-DCONFDIR=%{_sysconfdir}/%{name} \
 	-DLIBDIR=%{_libdir} \
-	-DRSPAMD_GROUP=rspamd \
-	-DRSPAMD_USER=rspamd .
+	..
+
 %{__make}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/etc/{sysconfig,rc.d/init.d}
+install -d $RPM_BUILD_ROOT{/etc/{sysconfig,rc.d/init.d},%{_sysconfdir}/%{name}/{local.d,override.d}}
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d
 cp -p %SOURCE1 $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
 cp -p %SOURCE2 $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 cp -p %SOURCE3 $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 
-%{__make} install \
+%{__make} -C build install \
 	DESTDIR=$RPM_BUILD_ROOT
 
 %clean
@@ -79,7 +79,6 @@ rm -rf $RPM_BUILD_ROOT
 %pre
 %groupadd -g 294 %{name}
 %useradd -u 294 -d /var/lib/%{name} -g %{name} -c "rspamd User" %{name}
-
 
 %postun
 /sbin/ldconfig
