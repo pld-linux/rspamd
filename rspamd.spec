@@ -1,13 +1,13 @@
 #
 Summary:	Spam filter to replace spamassassin
 Name:		rspamd
-Version:	1.7.7
-Release:	0.1
+Version:	1.7.8
+Release:	1
 License:	Apache v2.0
 Group:		Applications
 # Source0:	https://rspamd.com/downloads/%{name}-%{version}.tar.xz
-Source0:	https://github.com/vstakhov/rspamd/archive/%{version}.tar.gz
-# Source0-md5:	ab3f7b2b1496782fa9f91caef70afbdb
+Source0:	https://github.com/vstakhov/rspamd/archive/%{version}/%{name}-%{version}.tar.gz
+# Source0-md5:	a1d63d548e7067538c7dbb3e655fd5d6
 Source1:	%{name}.tmpfiles
 Source2:	%{name}.init
 Source3:	%{name}.sysconfig
