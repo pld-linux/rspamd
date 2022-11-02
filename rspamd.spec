@@ -1,13 +1,12 @@
 #
 Summary:	Spam filter to replace spamassassin
 Name:		rspamd
-Version:	1.7.8
+Version:	3.4
 Release:	1
 License:	Apache v2.0
 Group:		Applications
-# Source0:	https://rspamd.com/downloads/%{name}-%{version}.tar.xz
 Source0:	https://github.com/vstakhov/rspamd/archive/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	a1d63d548e7067538c7dbb3e655fd5d6
+# Source0-md5:	8125fd01e676c7624f077a2a58076e60
 Source1:	%{name}.tmpfiles
 Source2:	%{name}.init
 Source3:	%{name}.sysconfig
@@ -22,6 +21,7 @@ BuildRequires:	libicu-devel
 BuildRequires:	libmagic-devel
 BuildRequires:	lua51-devel
 BuildRequires:	luajit-devel
+BuildRequires:	libsodium-devel
 BuildRequires:	pcre-devel
 BuildRequires:	pkgconfig
 BuildRequires:	ragel
@@ -30,6 +30,9 @@ Requires:	rc-scripts
 Provides:	group(rspamd)
 Provides:	user(rspamd)
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+# debugsource package fails
+%define         _enable_debug_packages 0
 
 %description
 Rspamd is a complex spam filter that allows to estimate messages by
@@ -60,10 +63,14 @@ cd build
 	..
 
 %{__make}
+cd ..
+%{__sed} -i -e '1s,/usr/bin/env perl,/usr/bin/perl,' utils/rspamd_stats.pl
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{/etc/{sysconfig,rc.d/init.d},%{_sysconfdir}/%{name}/{local.d,override.d}}
+install -d $RPM_BUILD_ROOT{/etc/{sysconfig,rc.d/init.d},%{_sysconfdir}/%{name}/{local.d,override.d}} \
+        $RPM_BUILD_ROOT/var/log/%{name} \
+        $RPM_BUILD_ROOT/var/run/%{name}
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d
 cp -p %SOURCE1 $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
@@ -100,7 +107,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc ChangeLog LICENSE README.md
+%doc ChangeLog LICENSE.md README.md
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %{_sysconfdir}/tmpfiles.d/rspamd.conf
@@ -108,25 +115,26 @@ fi
 %dir %{_sysconfdir}/%{name}
 %dir %{_sysconfdir}/%{name}/local.d
 %dir %{_sysconfdir}/%{name}/override.d
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/2tld.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/actions.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/cgp.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/common.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/composites.conf
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/dmarc_whitelist.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/groups.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/logging.inc
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/maillist.inc
+%dir %{_sysconfdir}/%{name}/maps.d
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/maps.d/dmarc_whitelist.inc
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/maps.d/maillist.inc
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/maps.d/mid.inc
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/maps.d/mime_types.inc
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/maps.d/redirectors.inc
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/maps.d/spf_dkim_whitelist.inc
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/maps.d/surbl-whitelist.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/metrics.conf
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/mid.inc
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/mime_types.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/modules.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/options.inc
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/redirectors.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/rspamd.conf
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/spf_dkim_whitelist.inc
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/settings.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/statistic.conf
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/surbl-whitelist.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/worker-controller.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/worker-fuzzy.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/worker-normal.inc
@@ -141,50 +149,40 @@ fi
 %{_datadir}/%{name}/elastic/*.json
 %dir %{_datadir}/%{name}/languages/
 %{_datadir}/%{name}/languages/*.json
-%dir %{_datadir}/%{name}/lib
-%{_datadir}/%{name}/lib/ansicolors.lua
-%{_datadir}/%{name}/lib/argparse.lua
-%{_datadir}/%{name}/lib/fun.lua
-%{_datadir}/%{name}/lib/global_functions.lua
-%{_datadir}/%{name}/lib/lua_auth_results.lua
-%{_datadir}/%{name}/lib/lua_cfg_transform.lua
-%{_datadir}/%{name}/lib/lua_dkim_tools.lua
-%{_datadir}/%{name}/lib/lua_maps.lua
-%{_datadir}/%{name}/lib/lua_meta.lua
-%{_datadir}/%{name}/lib/lua_nn.lua
-%{_datadir}/%{name}/lib/lua_redis.lua
-%{_datadir}/%{name}/lib/lua_squeeze_rules.lua
-%{_datadir}/%{name}/lib/lua_stat.lua
-%{_datadir}/%{name}/lib/lua_util.lua
-%{_datadir}/%{name}/lib/moses.lua
-%{_datadir}/%{name}/lib/plugins_stats.lua
-%{_datadir}/%{name}/lib/rescore_utility.lua
-%dir %{_datadir}/%{name}/lib/decisiontree
-%{_datadir}/%{name}/lib/decisiontree/*.lua
-%dir %{_datadir}/%{name}/lib/nn
-%{_datadir}/%{name}/lib/nn/*.lua
-%dir %{_datadir}/%{name}/lib/optim
-%{_datadir}/%{name}/lib/optim/*.lua
-%dir %{_datadir}/%{name}/lib/paths
-%{_datadir}/%{name}/lib/paths/init.lua
-%dir %{_datadir}/%{name}/lib/rspamadm
-%{_datadir}/%{name}/lib/rspamadm/*.lua
-%dir %{_datadir}/%{name}/lib/torch
-%{_datadir}/%{name}/lib/torch/*.lua
-%dir %{_datadir}/%{name}/lua
-%{_datadir}/%{name}/lua/*.lua
+%{_datadir}/%{name}/languages/stop_words
+%dir %{_datadir}/%{name}/lualib
+%{_datadir}/%{name}/lualib/*.lua
+%dir %{_datadir}/%{name}/lualib/lua_content
+%{_datadir}/%{name}/lualib/lua_content/*.lua
+%dir %{_datadir}/%{name}/lualib/lua_ffi
+%{_datadir}/%{name}/lualib/lua_ffi/*.lua
+%dir %{_datadir}/%{name}/lualib/lua_magic
+%{_datadir}/%{name}/lualib/lua_magic/*.lua
+%dir %{_datadir}/%{name}/lualib/lua_scanners
+%{_datadir}/%{name}/lualib/lua_scanners/*.lua
+%dir %{_datadir}/%{name}/lualib/lua_selectors
+%{_datadir}/%{name}/lualib/lua_selectors/*.lua
+%dir %{_datadir}/%{name}/lualib/plugins
+%{_datadir}/%{name}/lualib/plugins/*.lua
+%dir %{_datadir}/%{name}/lualib/rspamadm
+%{_datadir}/%{name}/lualib/rspamadm/*.lua
+%dir %{_datadir}/%{name}/plugins
+%{_datadir}/%{name}/plugins/*.lua
 %dir %{_datadir}/%{name}/rules
 %{_datadir}/%{name}/rules/*.lua
 %dir %{_datadir}/%{name}/rules/regexp
 %{_datadir}/%{name}/rules/regexp/*.lua
+%dir %{_datadir}/%{name}/rules/controller
+%{_datadir}/%{name}/rules/controller/*.lua
 %dir %{_datadir}/%{name}/www
 %{_datadir}/%{name}/www/*
 %attr(755,root,root) %{_libdir}/*.so
 %{_mandir}/man1/rspamadm.1*
 %{_mandir}/man1/rspamc.1*
 %{_mandir}/man8/rspamd.8*
+%dir %attr(750,root,logs) /var/log/%{name}
+%dir /var/run/%{name}
 
 %changelog
 * Wed May 15 2013 PLD Linux Team <feedback@pld-linux.org>
 - For complete changelog see:	http://git.pld-linux.org/?p=packages/rspamd.git;a=log
-
