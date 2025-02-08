@@ -1,27 +1,31 @@
 #
 Summary:	Spam filter to replace spamassassin
 Name:		rspamd
-Version:	3.4
+Version:	3.11.0
 Release:	1
 License:	Apache v2.0
 Group:		Applications
 Source0:	https://github.com/vstakhov/rspamd/archive/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	8125fd01e676c7624f077a2a58076e60
+# Source0-md5:	dd0fd623af49aeb4fb1f62f86ba208c5
 Source1:	%{name}.tmpfiles
 Source2:	%{name}.init
 Source3:	%{name}.sysconfig
+Patch1:		missing-header.patch
 URL:		https://rspamd.com
 BuildRequires:	rpmbuild(macros) >= 1.228
 Requires(post,preun):	/sbin/chkconfig
 BuildRequires:	cmake
 BuildRequires:	glib2-devel
+BuildRequires:	lapack-devel
+BuildRequires:	libarchive-devel
 BuildRequires:	libevent-devel
 BuildRequires:	libffi-devel
 BuildRequires:	libicu-devel
 BuildRequires:	libmagic-devel
+BuildRequires:	libsodium-devel
+BuildRequires:	libunwind-devel
 BuildRequires:	lua51-devel
 BuildRequires:	luajit-devel
-BuildRequires:	libsodium-devel
 BuildRequires:	pcre-devel
 BuildRequires:	pkgconfig
 BuildRequires:	ragel
@@ -52,6 +56,7 @@ spam filters:
 
 %prep
 %setup -q
+%patch 1
 
 %build
 install -d build
@@ -114,15 +119,21 @@ fi
 %attr(755,root,root) %{_bindir}/rspam*
 %dir %{_sysconfdir}/%{name}
 %dir %{_sysconfdir}/%{name}/local.d
+%{_sysconfdir}/%{name}/local.d/*.example
 %dir %{_sysconfdir}/%{name}/override.d
+%{_sysconfdir}/%{name}/override.d/*.example
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/actions.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/cgp.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/common.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/composites.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/groups.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/lang_detection.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/logging.inc
+%dir %{_sysconfdir}/%{name}/lua.local.d
+%{_sysconfdir}/%{name}/lua.local.d/*.example
 %dir %{_sysconfdir}/%{name}/maps.d
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/maps.d/dmarc_whitelist.inc
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/maps.d/exe_clickbait.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/maps.d/maillist.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/maps.d/mid.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/maps.d/mime_types.inc
@@ -130,6 +141,8 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/maps.d/spf_dkim_whitelist.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/maps.d/surbl-whitelist.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/metrics.conf
+%dir %{_sysconfdir}/%{name}/modules.local.d
+%{_sysconfdir}/%{name}/modules.local.d/*.example
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/modules.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/options.inc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/rspamd.conf
@@ -145,8 +158,6 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/scores.d/*.conf
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/effective_tld_names.dat
-%dir %{_datadir}/%{name}/elastic/
-%{_datadir}/%{name}/elastic/*.json
 %dir %{_datadir}/%{name}/languages/
 %{_datadir}/%{name}/languages/*.json
 %{_datadir}/%{name}/languages/stop_words
@@ -164,6 +175,8 @@ fi
 %{_datadir}/%{name}/lualib/lua_selectors/*.lua
 %dir %{_datadir}/%{name}/lualib/plugins
 %{_datadir}/%{name}/lualib/plugins/*.lua
+%dir %{_datadir}/%{name}/lualib/redis_scripts
+%{_datadir}/%{name}/lualib/redis_scripts/*.lua
 %dir %{_datadir}/%{name}/lualib/rspamadm
 %{_datadir}/%{name}/lualib/rspamadm/*.lua
 %dir %{_datadir}/%{name}/plugins
