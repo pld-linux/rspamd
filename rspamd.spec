@@ -1,16 +1,15 @@
 #
 Summary:	Spam filter to replace spamassassin
 Name:		rspamd
-Version:	3.11.0
+Version:	3.11.1
 Release:	1
 License:	Apache v2.0
 Group:		Applications
 Source0:	https://github.com/vstakhov/rspamd/archive/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	dd0fd623af49aeb4fb1f62f86ba208c5
+# Source0-md5:	b9dbae75d993d990fb30d1221f2befa4
 Source1:	%{name}.tmpfiles
 Source2:	%{name}.init
 Source3:	%{name}.sysconfig
-Patch1:		missing-header.patch
 URL:		https://rspamd.com
 BuildRequires:	rpmbuild(macros) >= 1.228
 Requires(post,preun):	/sbin/chkconfig
@@ -56,7 +55,6 @@ spam filters:
 
 %prep
 %setup -q
-%patch 1
 
 %build
 install -d build

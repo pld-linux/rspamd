@@ -36,7 +36,7 @@ start() {
 	fi
 
 	msg_starting "rspamd"
-	daemon /usr/bin/rspamd -u rspamd -g rspamd $RSPAMD_OPTS
+	daemon --fork /usr/bin/rspamd -u rspamd -g rspamd $RSPAMD_OPTS
 	RETVAL=$?
 	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/rspamd
 }
