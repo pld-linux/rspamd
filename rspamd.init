@@ -16,8 +16,8 @@
 # Source networking configuration.
 . /etc/sysconfig/network
 
-SPAMD_OPTS="-d -c"
-# Source configureation.
+RSPAMD_OPTS=""
+# Source configuration.
 if [ -f /etc/sysconfig/rspamd ] ; then
 	. /etc/sysconfig/rspamd
 fi
